@@ -15,7 +15,10 @@ tmpdir=$(mktemp -d)
 # Kill backgrounded jobs on exit
 function clean_up {
     ansible-playbook -i hosts ci-pipeline/playbooks/setup-libvirt-image.yml -l kernel_install_slave_baremetal -e 'state=absent'
-    kill $(jobs -p)
+    JOBS=$(jobs -p)
+    if [ -n "${JOBS}" ]; then
+      kill ${JOBS}
+    fi
     sudo rm -rf $tmpdir
 }
 trap clean_up EXIT SIGHUP SIGINT SIGTERM
